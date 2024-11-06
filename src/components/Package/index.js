@@ -218,21 +218,26 @@ class Package extends Component {
     if (planPackage.is_free_plan) {
       return <Placeholder />;
     }
-
+    console.log(selectedPricing.sitesLabel());
+    let singlesitetooltip =
+        'You can activate a single-site license on one multisite subsite, main site, or single site.',
+      tensitestooltip =
+        'You can activate a 10-site license on ten multisite subsites including the main site, or ten single sites.',
+      unlimitedsitestooltip =
+        'With unlimited sites license, you can use this on as many multisite subsites or single-sites as you want.';
     return (
       <div className="fs-selected-pricing-license-quantity">
-        {selectedPricing.sitesLabel()}
-        {!planPackage.is_free_plan && (
+        {
           <Tooltip>
             <Fragment>
-              If you are running a multi-site network, each site in the network
-              requires a license.
-              {pricingLicenses.length > 0
-                ? 'Therefore, if you need to use it on multiple sites, check out our multi-site prices.'
-                : ''}
+              {selectedPricing.sitesLabel() === 'Single Site'
+                ? singlesitetooltip
+                : selectedPricing.sitesLabel() === '10 Sites'
+                ? tensitestooltip
+                : unlimitedsitestooltip}
             </Fragment>
           </Tooltip>
-        )}
+        }
       </div>
     );
   }
