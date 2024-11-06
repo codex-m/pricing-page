@@ -923,22 +923,19 @@ class FreemiusPricingMain extends Component {
                 />
               </Section>
               <Section fs-section="custom-implementation">
-                <h2>
-                  Need more sites, custom implementation and dedicated support?
-                </h2>
+                <h2>Try our risk-free 14-day free trial</h2>
                 <p>
-                  We got you covered!{' '}
+                  {' '}
                   <a
-                    href={PageManager.getInstance().getContactUrl(
-                      this.state.plugin,
-                      'pre_sale_question'
-                    )}
+                    href={
+                      prime_mover_js_backups_renderer.freetrial_pricing_page
+                    }
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    Click here to contact us
+                    Start your trial
                   </a>{' '}
-                  and we'll scope a plan that's tailored to your needs.
+                  and unlock all PRO features on your site for two weeks.
                 </p>
               </Section>
               {pricingData.plugin.hasRefundPolicy() &&
