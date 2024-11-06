@@ -396,7 +396,7 @@ class Package extends Component {
       'fs-button fs-button--size-large fs-upgrade-button fs-button--type-primary fs-button--outline';
     let featuredButtonClassName =
       'fs-button fs-button--size-large fs-upgrade-button fs-button--type-primary ';
-    let featuredTarget = 'Single Site';
+    let featuredTarget = '10 Sites';
 
     const localDecimalSeparator = Helper.formatNumber(0.1, Package.locale)[1];
 
@@ -599,36 +599,6 @@ class Package extends Component {
               {this.getCtaButtonLabel(planChangeType)}
             </button>
           </div>
-          <ul className="fs-plan-features">
-            {planPackage.nonhighlighted_features.map(feature => {
-              if (!Helper.isNonEmptyString(feature.title)) {
-                return (
-                  <li key={feature.id}>
-                    <Placeholder />
-                  </li>
-                );
-              }
-
-              const featureTitle =
-                0 === feature.id.indexOf('all_plan_') ? (
-                  <strong>{feature.title}</strong>
-                ) : (
-                  feature.title
-                );
-
-              return (
-                <li key={feature.id}>
-                  <Icon icon={['fas', 'check']} />
-                  <span className="fs-feature-title">{featureTitle}</span>
-                  {Helper.isNonEmptyString(feature.description) && (
-                    <Tooltip>
-                      <Fragment>{feature.description}</Fragment>
-                    </Tooltip>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
         </div>
       </li>
     );

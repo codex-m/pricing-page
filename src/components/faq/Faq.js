@@ -56,8 +56,33 @@ class Faq extends Component {
 
     if (context.hasPremiumVersion) {
       faq.push({
-        q: 'Is there a setup fee?',
-        a: 'No. There are no setup fees on any of our plans.',
+        q: 'Are all plans multisite supported?',
+        a: 'Yes including single-site plans which you can activate on one subsite or main site.',
+      });
+
+      faq.push({
+        q: 'Are licenses transferrable?',
+        a: 'Yes, all licenses are transferrable to any site. You can deactivate them before you move the license to another site. Thus, for example, you can reuse a single-site license for any number of sites!',
+      });
+
+      faq.push({
+        q: 'Do you offer free local-host licenses?',
+        a: (
+          <Fragment>
+            Yes, we offer{' '}
+            <a
+              className="prime-mover-external-link"
+              href="https://freemius.com/help/documentation/selling-with-freemius/license-utilization/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              free localhost licenses
+            </a>
+            . For example, you can activate your single-site license to any
+            number of development sites. This is excluded from the license
+            quota.
+          </Fragment>
+        ),
       });
     }
 
