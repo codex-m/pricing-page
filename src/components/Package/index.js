@@ -390,13 +390,13 @@ class Package extends Component {
       }
     }
 
-    let packageClassName = 'fs-package';
-    let featuredClassName = 'fs-package fs-featured-plan';
-    let buttonClassName =
-      'fs-button fs-button--size-large fs-upgrade-button fs-button--type-primary fs-button--outline';
-    let featuredButtonClassName =
-      'fs-button fs-button--size-large fs-upgrade-button fs-button--type-primary ';
-    let featuredTarget = '10 Sites';
+    let packageClassName = 'fs-package',
+      featuredClassName = 'fs-package fs-featured-plan',
+      buttonClassName =
+        'fs-button fs-button--size-large fs-upgrade-button fs-button--type-primary fs-button--outline',
+      featuredButtonClassName =
+        'fs-button fs-button--size-large fs-upgrade-button fs-button--type-primary ',
+      featuredTarget = '10 Sites';
 
     let singlesitesupport = 'PRO backup & migration for one site';
     let tensitessupport = 'PRO backup & migration for 10 sites';
