@@ -923,7 +923,7 @@ class FreemiusPricingMain extends Component {
                 />
               </Section>
               <Section fs-section="custom-implementation">
-                <h2>Try our risk-free 14-day free trial</h2>
+                <h2>Try 14-day risk-free trial</h2>
                 <p>
                   {' '}
                   <a
@@ -933,7 +933,7 @@ class FreemiusPricingMain extends Component {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    Start your trial
+                    Start my trial
                   </a>{' '}
                   and unlock all PRO features on your site for two weeks.
                 </p>
