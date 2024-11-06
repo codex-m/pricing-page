@@ -214,7 +214,7 @@ class Package extends Component {
     );
   }
 
-  getSitesLabel(planPackage, selectedPricing, pricingLicenses) {
+  getSitesLabel(planPackage, selectedPricing) {
     if (planPackage.is_free_plan) {
       return <Placeholder />;
     }
@@ -478,7 +478,7 @@ class Package extends Component {
               <Placeholder />
             )}
           </div>
-          {this.getSitesLabel(planPackage, selectedPricing, pricingLicenses)}
+          {this.getSitesLabel(planPackage, selectedPricing)}
           <div className="fs-support-and-main-features">
             {null !== supportLabel && (
               <div className="fs-plan-support">
