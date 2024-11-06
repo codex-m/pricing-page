@@ -209,7 +209,7 @@ class Package extends Component {
     return (
       <div className="fs-undiscounted-price">
         Normally {this.context.currencySymbols[this.context.selectedCurrency]}
-        {amount} / selectedPricingCycleLabel
+        {amount} / {selectedPricingCycleLabel}
       </div>
     );
   }
@@ -391,14 +391,12 @@ class Package extends Component {
     }
 
     let packageClassName = 'fs-package';
-    let isFeatured = false;
-
-    if (planPackage.is_free_plan) {
-      packageClassName += ' fs-free-plan';
-    } else if (!isSinglePlan && planPackage.is_featured) {
-      packageClassName += ' fs-featured-plan';
-      isFeatured = true;
-    }
+    let featuredClassName = 'fs-package fs-featured-plan';
+    let buttonClassName =
+      'fs-button fs-button--size-large fs-upgrade-button fs-button--type-primary fs-button--outline';
+    let featuredButtonClassName =
+      'fs-button fs-button--size-large fs-upgrade-button fs-button--type-primary ';
+    let featuredTarget = 'Single Site';
 
     const localDecimalSeparator = Helper.formatNumber(0.1, Package.locale)[1];
 
@@ -414,7 +412,14 @@ class Package extends Component {
     const planChangeType = this.getPlanChangeType();
 
     return (
-      <li key={planPackage.id} className={packageClassName}>
+      <li
+        key={planPackage.id}
+        className={
+          featuredTarget === selectedPricing.sitesLabel()
+            ? featuredClassName
+            : packageClassName
+        }
+      >
         <div className="fs-most-popular">
           <h4>
             <strong>Most Popular</strong>
@@ -582,13 +587,11 @@ class Package extends Component {
           <div className="fs-upgrade-button-container">
             <button
               disabled={planChangeType === 'none'}
-              className={`fs-button fs-button--size-large fs-upgrade-button ${
-                planChangeType === 'upgrade'
-                  ? `fs-button--type-primary ${
-                      isFeatured ? '' : 'fs-button--outline'
-                    }`
-                  : 'fs-button--outline'
-              }`}
+              className={
+                featuredTarget === selectedPricing.sitesLabel()
+                  ? featuredButtonClassName
+                  : buttonClassName
+              }
               onClick={() => {
                 this.props.upgradeHandler(planPackage, selectedPricing);
               }}

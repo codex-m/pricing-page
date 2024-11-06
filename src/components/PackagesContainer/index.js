@@ -522,7 +522,7 @@ class PackagesContainer extends Component {
 
     let packageComponents = [],
       isFirstPlanPackage = true,
-      hasFeaturedPlan = false,
+      hasFeaturedPlan = true,
       mobileTabs = [],
       mobileDropdownOptions = [],
       selectedPlanOrPricingID = this.context.selectedPlanID;
