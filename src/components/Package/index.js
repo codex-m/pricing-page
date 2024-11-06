@@ -431,9 +431,6 @@ class Package extends Component {
               {isSinglePlan ? selectedPricing.sitesLabel() : planPackage.title}
             </strong>
           </h2>
-          <h3 className="fs-plan-description">
-            <strong>{planPackage.description_lines}</strong>
-          </h3>
           {this.getUndiscountedPrice(
             planPackage,
             selectedPricing,
