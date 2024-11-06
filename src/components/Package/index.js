@@ -398,6 +398,10 @@ class Package extends Component {
       'fs-button fs-button--size-large fs-upgrade-button fs-button--type-primary ';
     let featuredTarget = '10 Sites';
 
+    let singlesitesupport = 'PRO backup & migration for one site';
+    let tensitessupport = 'PRO backup & migration for 10 sites';
+    let unlimitedsitessupport = 'PRO backup & migration for unlimited sites';
+
     const localDecimalSeparator = Helper.formatNumber(0.1, Package.locale)[1];
 
     let selectedAmountInteger, selectedAmountFraction;
@@ -473,7 +477,13 @@ class Package extends Component {
           <div className="fs-support-and-main-features">
             {null !== supportLabel && (
               <div className="fs-plan-support">
-                <strong>{supportLabel}</strong>
+                <strong>
+                  {selectedPricing.sitesLabel() === 'Single Site'
+                    ? singlesitesupport
+                    : selectedPricing.sitesLabel() === '10 Sites'
+                    ? tensitessupport
+                    : unlimitedsitessupport}
+                </strong>
               </div>
             )}
             <ul className="fs-plan-features-with-value">
