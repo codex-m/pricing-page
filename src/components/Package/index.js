@@ -218,7 +218,7 @@ class Package extends Component {
     if (planPackage.is_free_plan) {
       return <Placeholder />;
     }
-    console.log(selectedPricing.sitesLabel());
+
     let singlesitetooltip =
         'You can activate a single-site license on one multisite subsite, main site, or single site.',
       tensitestooltip =
@@ -403,9 +403,9 @@ class Package extends Component {
         'fs-button fs-button--size-large fs-upgrade-button fs-button--type-primary ',
       featuredTarget = '10 Sites';
 
-    let singlesitesupport = 'PRO backup & migration for one site';
-    let tensitessupport = 'PRO backup & migration for 10 sites';
-    let unlimitedsitessupport = 'PRO backup & migration for unlimited sites';
+    let singlesitesupport = 'PRO BACKUP & MIGRATION FOR ONE SITE';
+    let tensitessupport = 'PRO BACKUP & MIGRATION FOR 10 SITES';
+    let unlimitedsitessupport = 'UNLIMITED SITES PRO BACKUP & MIGRATION';
 
     const localDecimalSeparator = Helper.formatNumber(0.1, Package.locale)[1];
 
@@ -482,13 +482,15 @@ class Package extends Component {
           <div className="fs-support-and-main-features">
             {null !== supportLabel && (
               <div className="fs-plan-support">
-                <strong>
+                <div className="notice-large">
                   {selectedPricing.sitesLabel() === 'Single Site'
                     ? singlesitesupport
                     : selectedPricing.sitesLabel() === '10 Sites'
                     ? tensitessupport
                     : unlimitedsitessupport}
-                </strong>
+                  <hr />
+                  <em>All PRO features included</em>
+                </div>
               </div>
             )}
             <ul className="fs-plan-features-with-value">

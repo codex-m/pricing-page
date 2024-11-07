@@ -183,20 +183,21 @@ class FreemiusPricingMain extends Component {
 
   getModuleIcon() {
     let defaultIconUrl =
-      'theme' === this.state.plugin.type ? defaultThemeIcon : defaultPluginIcon;
+        'theme' === this.state.plugin.type
+          ? defaultThemeIcon
+          : defaultPluginIcon,
+      logo = defaultIconUrl;
+
+    if (prime_mover_js_backups_renderer.prime_mover_logo) {
+      logo = prime_mover_js_backups_renderer.prime_mover_logo;
+    }
 
     return (
-      <object
-        data={this.state.plugin.icon}
+      <img
+        src={logo}
         className="fs-plugin-logo"
-        type="image/png"
-      >
-        <img
-          src={defaultIconUrl}
-          className="fs-plugin-logo"
-          alt={`${this.state.plugin.type}-logo`}
-        />
-      </object>
+        alt={`${this.state.plugin.type}-logo`}
+      />
     );
   }
 
