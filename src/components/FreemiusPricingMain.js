@@ -2,12 +2,12 @@ import React, { Component, Fragment } from 'react';
 
 import '.././assets/scss/App.scss';
 
-import badgeFreemius from '.././assets/img/freemius-badge-secure-payments-light.svg';
-import badgeMcAfee from '.././assets/img/mcafee.png';
-import badgePayPal from '.././assets/img/paypal.png';
-import badgeComodo from '.././assets/img/comodo-short-green.png';
-import defaultPluginIcon from '.././assets/img/plugin-icon.png';
-import defaultThemeIcon from '.././assets/img/theme-icon.png';
+import badgeFreemius from '../assets/img/secure-payments-by-freemius.svg';
+import badgeMcAfee from '../assets/img/mcafee.png';
+import badgePayPal from '../assets/img/paypal.svg';
+import badgeCloudFlare from '.././assets/img/cloudflare.png';
+import defaultPluginIcon from '../assets/img/plugin-icon.png';
+import defaultThemeIcon from '../assets/img/theme-icon.png';
 
 import { Plan } from '../entities/Plan';
 import { Plugin } from '../entities/Plugin';
@@ -35,7 +35,6 @@ import { RequestManager } from '../services/RequestManager';
 import { PageManager } from '../services/PageManager';
 import { Helper } from '../Helper';
 import { TrackingManager } from '../services/TrackingManager';
-import { FS } from '../postmessage';
 import Loader from './Loader';
 import TrialConfirmationModal from './TrialConfirmationModal';
 
@@ -270,13 +269,10 @@ class FreemiusPricingMain extends Component {
 
   /**
    * @return {boolean}
+   * @deprecated - This always returns what's in `isDashboardMode`, we don't support being loaded through an iFrame, so it is always embedded.
    */
   isEmbeddedDashboardMode() {
-    if (!this.isDashboardMode()) {
-      return false;
-    }
-
-    return Helper.isUndefinedOrNull(FS.PostMessage.parent_url());
+    return this.isDashboardMode();
   }
 
   /**
@@ -321,32 +317,32 @@ class FreemiusPricingMain extends Component {
           // Track trial start.
           this.trackingManager.track('started');
 
-          const parentUrl = FS.PostMessage.parent_url();
-
           const page =
             this.state.plugin.menu_slug +
             (this.hasInstallContext() ? '-account' : '');
 
-          if (!Helper.isNonEmptyString(parentUrl)) {
-            if (Helper.isNonEmptyString(FSConfig.next)) {
-              // Fix the `page` query string parameter, if no install context is available.
-              let nextPage = FSConfig.next;
+          let nextPage;
 
-              if (!this.hasInstallContext()) {
-                nextPage = nextPage.replace(/page=[^&]+/, `page=${page}`);
-              }
+          if (Helper.isNonEmptyString(FSConfig.next)) {
+            // Fix the `page` query string parameter, if no install context is available.
+            nextPage = FSConfig.next;
 
-              PageManager.getInstance().redirect(nextPage);
+            if (!this.hasInstallContext()) {
+              nextPage = nextPage.replace(/page=[^&]+/, `page=${page}`);
             }
           } else {
-            FS.PostMessage.post('forward', {
-              url: PageManager.getInstance().addQueryArgs(parentUrl, {
+            // Just a safe fallback in case the FSConfig.next is not set.
+            nextPage = PageManager.getInstance().addQueryArgs(
+              window.location.href,
+              {
                 page,
                 fs_action: this.state.plugin.unique_affix + '_sync_license',
                 plugin_id: this.state.plugin.id,
-              }),
-            });
+              }
+            );
           }
+
+          PageManager.getInstance().redirect(nextPage);
         }
 
         this.setState({
@@ -368,64 +364,18 @@ class FreemiusPricingMain extends Component {
       return;
     }
 
-    if (!this.isEmbeddedDashboardMode()) {
-      let handler = window.FS.Checkout.configure({
-        plugin_id: this.state.plugin.id,
-        public_key: this.state.plugin.public_key,
-        sandbox_token: Helper.isNonEmptyString(FSConfig.sandbox_token)
-          ? FSConfig.sandbox_token
-          : null,
-        timestamp: Helper.isNonEmptyString(FSConfig.sandbox_token)
-          ? FSConfig.timestamp
-          : null,
-      });
-
-      let params = {
-        name: this.state.plugin.title,
-        plan_id: plan.id,
-        success: function (response) {
-          console.log(response);
-        },
-      };
-
-      if (null !== pricing) {
-        params.pricing_id = pricing.id;
-      } else {
-        params.licenses =
-          UnlimitedLicenses == this.state.selectedLicenseQuantity
-            ? null
-            : this.state.selectedLicenseQuantity;
-      }
-
-      handler.open(params);
-
-      return;
-    }
-
     if (this.state.isTrial && !plan.requiresSubscription()) {
       if (this.hasInstallContext()) {
         this.startTrial(plan.id);
       } else {
-        if (Helper.isUndefinedOrNull(FS.PostMessage.parent_url())) {
-          this.setState({ pendingConfirmationTrialPlan: plan });
-        } else {
-          FS.PostMessage.post('start_trial', {
-            plugin_id: this.state.plugin.id,
-            plan_id: plan.id,
-            plan_name: plan.name,
-            plan_title: plan.title,
-            trial_period: plan.trial_period,
-          });
-        }
+        this.setState({ pendingConfirmationTrialPlan: plan });
       }
     } else {
       if (null === pricing) {
         pricing = this.getSelectedPlanPricing(plan.id);
       }
 
-      let parentUrl = FS.PostMessage.parent_url(),
-        hasParentUrl = Helper.isNonEmptyString(parentUrl),
-        billingCycle = this.state.selectedBillingCycle;
+      const billingCycle = this.state.selectedBillingCycle;
 
       if (this.state.skipDirectlyToPayPal) {
         let data = {},
@@ -445,23 +395,13 @@ class FreemiusPricingMain extends Component {
           billing_cycle: billingCycle,
         };
 
-        if (hasParentUrl) {
-          FS.PostMessage.post('forward', {
-            url: PageManager.getInstance().addQueryArgs(
-              FSConfig.fs_wp_endpoint_url +
-                '/action/service/paypal/express-checkout/',
-              params
-            ),
-          });
-        } else {
-          params.prev_url = window.location.href;
+        params.prev_url = window.location.href;
 
-          PageManager.getInstance().redirect(
-            FSConfig.fs_wp_endpoint_url +
-              '/action/service/paypal/express-checkout/',
-            params
-          );
-        }
+        PageManager.getInstance().redirect(
+          FSConfig.fs_wp_endpoint_url +
+            '/action/service/paypal/express-checkout/',
+          params
+        );
       } else {
         let urlParams = {
           checkout: 'true',
@@ -477,16 +417,7 @@ class FreemiusPricingMain extends Component {
           urlParams.trial = 'true';
         }
 
-        if (!hasParentUrl) {
-          PageManager.getInstance().redirect(window.location.href, urlParams);
-        } else {
-          FS.PostMessage.post('forward', {
-            url: PageManager.getInstance().addQueryArgs(parentUrl, {
-              ...urlParams,
-              ...{ page: this.state.plugin.menu_slug + '-pricing' },
-            }),
-          });
-        }
+        PageManager.getInstance().redirect(window.location.href, urlParams);
       }
     }
   }
@@ -523,7 +454,7 @@ class FreemiusPricingMain extends Component {
           paidPlansCount = 0,
           planManager = PlanManager.getInstance(pricingData.plans),
           plansCount = 0,
-          planSingleSitePricingCollection = [],
+          planPricingWithLowestLicensesCollection = [],
           priorityEmailSupportPlanID = null,
           selectedBillingCycle = this.state.selectedBillingCycle,
           paidPlanWithTrial = null,
@@ -588,15 +519,15 @@ class FreemiusPricingMain extends Component {
 
             let pricing = pricingCollection[pricingIndex];
 
-            if (null != pricing.monthly_price) {
+            if (null != pricing.monthly_price && !pricing.is_hidden) {
               billingCycles[BillingCycleString.MONTHLY] = true;
             }
 
-            if (null != pricing.annual_price) {
+            if (null != pricing.annual_price && !pricing.is_hidden) {
               billingCycles[BillingCycleString.ANNUAL] = true;
             }
 
-            if (null != pricing.lifetime_price) {
+            if (null != pricing.lifetime_price && !pricing.is_hidden) {
               billingCycles[BillingCycleString.LIFETIME] = true;
             }
 
@@ -636,12 +567,15 @@ class FreemiusPricingMain extends Component {
           if (isPaidPlan) {
             paidPlansCount++;
 
-            let singleSitePricing = planManager.getSingleSitePricing(
-              pricingCollection,
-              this.state.selectedCurrency
-            );
-            if (null !== singleSitePricing) {
-              planSingleSitePricingCollection.push(singleSitePricing);
+            let pricingWithLowestLicenses =
+              planManager.getPricingWithLowestLicenses(
+                pricingCollection,
+                this.state.selectedCurrency
+              );
+            if (null !== pricingWithLowestLicenses) {
+              planPricingWithLowestLicensesCollection.push(
+                pricingWithLowestLicenses
+              );
             }
           }
         }
@@ -704,17 +638,8 @@ class FreemiusPricingMain extends Component {
 
         let plugin = new Plugin(pricingData.plugin);
 
-        let parentUrl = FS.PostMessage.parent_url();
-
         if (Helper.isNonEmptyString(FSConfig.menu_slug)) {
           plugin.menu_slug = FSConfig.menu_slug;
-        } else if (Helper.isNonEmptyString(parentUrl)) {
-          let page = PageManager.getInstance().getQuerystringParam(
-            parentUrl,
-            'page'
-          );
-
-          plugin.menu_slug = page.substring(0, page.length - '-pricing'.length);
         }
 
         plugin.unique_affix = !Helper.isUndefinedOrNull(FSConfig.unique_affix)
@@ -727,7 +652,7 @@ class FreemiusPricingMain extends Component {
           annualDiscount:
             hasAnnualCycle && hasMonthlyCycle
               ? planManager.largestAnnualDiscount(
-                  planSingleSitePricingCollection
+                  planPricingWithLowestLicensesCollection
                 )
               : 0,
           billingCycles: Object.keys(billingCycles),
@@ -783,9 +708,6 @@ class FreemiusPricingMain extends Component {
           uid: this.hasInstallContext() ? this.state.install.id : null,
           userID: this.hasInstallContext() ? this.state.install.user_id : null,
         });
-
-        FS.PostMessage.init_child();
-        FS.PostMessage.postHeight();
       });
   }
 
@@ -954,23 +876,31 @@ class FreemiusPricingMain extends Component {
                       key: 'fs-badges',
                       src: badgeFreemius,
                       alt: 'Secure payments by Freemius - Sell and market freemium and premium WordPress plugins & themes',
-                      link: 'https://freemius.com/?badge=secure_payments&version=light#utm_source=wpadmin&utm_medium=payments_badge&utm_campaign=pricing_page',
+                      link: 'https://freemius.com/?badge=secure_payments&version=light&utm_source=wpadmin&utm_medium=payments_badge&utm_campaign=wp_pricing_page',
+                      width: 300,
+                      height: 113,
                     },
                     {
                       key: 'mcafee',
                       src: badgeMcAfee,
                       alt: 'McAfee Badge',
                       link: 'https://www.mcafeesecure.com/verify?host=freemius.com',
+                      width: 150,
+                      height: 54,
                     },
                     {
                       key: 'paypal',
                       src: badgePayPal,
                       alt: 'PayPal Verified Badge',
+                      width: 80,
+                      height: 80,
                     },
                     {
-                      key: 'comodo',
-                      src: badgeComodo,
-                      alt: 'Comodo Secure SSL Badge',
+                      key: 'cloudflare',
+                      src: badgeCloudFlare,
+                      alt: 'CloudFlare Secure Badge',
+                      width: 150,
+                      height: 51,
                     },
                   ]}
                 />

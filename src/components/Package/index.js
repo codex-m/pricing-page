@@ -86,14 +86,27 @@ class Package extends Component {
       return 'upgrade';
     }
 
-    if (PlanManager.getInstance().isFreePlan(contextPlan.pricing)) {
+    const isContextPricingFree = PlanManager.getInstance().isFreePlan(
+      contextPlan.pricing
+    );
+    const isPlanPricingFree = PlanManager.getInstance().isFreePlan(
+      plan.pricing
+    );
+
+    // There are some cases where we will show the Free plan, especially if we are on free plan.
+    // For example, there's only one plan of the product and the plan doesn't have multiple pricings.
+    if (isContextPricingFree && isPlanPricingFree) {
+      return 'none';
+    }
+
+    if (isContextPricingFree) {
       return 'upgrade';
     }
 
     // At this point, the install has a plan. Now we need to compare the given plan with the context plan.
 
     // If the given plan is free, then it is always a downgrade.
-    if (PlanManager.getInstance().isFreePlan(plan.pricing)) {
+    if (isPlanPricingFree) {
       return 'downgrade';
     }
 
@@ -177,7 +190,8 @@ class Package extends Component {
   getUndiscountedPrice(
     planPackage,
     selectedPricing,
-    selectedPricingCycleLabel
+    selectedPricingCycleLabel,
+    selectedPricingAmount
   ) {
     if (
       BillingCycleString.ANNUAL !== this.context.selectedBillingCycle ||
@@ -204,6 +218,10 @@ class Package extends Component {
         true,
         Package.locale
       );
+    }
+
+    if (selectedPricingAmount === amount) {
+      return <Placeholder className={'fs-undiscounted-price'} />;
     }
 
     return (
@@ -364,10 +382,6 @@ class Package extends Component {
         supportedChannels.push('Phone');
       }
 
-      if (planPackage.hasSkypeSupport()) {
-        supportedChannels.push('Skype');
-      }
-
       if (planPackage.hasEmailSupport()) {
         supportedChannels.push(
           (this.context.priorityEmailSupportPlanID == planPackage.id
@@ -443,7 +457,8 @@ class Package extends Component {
           {this.getUndiscountedPrice(
             planPackage,
             selectedPricing,
-            selectedPricingCycleLabel
+            selectedPricingCycleLabel,
+            selectedPricingAmount
           )}
           <div className="fs-selected-pricing-amount">
             <strong className="fs-currency-symbol">
