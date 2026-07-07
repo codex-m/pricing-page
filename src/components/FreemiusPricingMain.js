@@ -35,6 +35,7 @@ import { RequestManager } from '../services/RequestManager';
 import { PageManager } from '../services/PageManager';
 import { Helper } from '../Helper';
 import { TrackingManager } from '../services/TrackingManager';
+import { getFirstAvailableCurrency } from '../utils/currency';
 import Loader from './Loader';
 import TrialConfirmationModal from './TrialConfirmationModal';
 
@@ -208,14 +209,18 @@ class FreemiusPricingMain extends Component {
    * @return {string} Defaults to `usd` if the currency that was passed in the config is not valid.
    */
   getDefaultCurrency() {
+    const configuredCurrency = Helper.isNonEmptyString(FSConfig.currency)
+      ? FSConfig.currency.toLowerCase()
+      : FSConfig.currency;
+
     if (
-      !Helper.isNonEmptyString(FSConfig.currency) &&
-      !CurrencySymbol[FSConfig.currency]
+      !Helper.isNonEmptyString(configuredCurrency) ||
+      !CurrencySymbol[configuredCurrency.toUpperCase()]
     ) {
       return DefaultCurrency;
     }
 
-    return FSConfig.currency;
+    return configuredCurrency;
   }
 
   /**
@@ -636,6 +641,18 @@ class FreemiusPricingMain extends Component {
           }
         }
 
+        const hasContextLicense =
+          !Helper.isUndefinedOrNull(this.state.license) &&
+          !Helper.isUndefinedOrNull(this.state.license.pricing_id);
+
+        const selectedCurrency = hasContextLicense
+          ? this.state.selectedCurrency
+          : getFirstAvailableCurrency(
+              pricingData.plans,
+              this.state.selectedCurrency,
+              selectedBillingCycle
+            );
+
         let plugin = new Plugin(pricingData.plugin);
 
         if (Helper.isNonEmptyString(FSConfig.menu_slug)) {
@@ -657,15 +674,15 @@ class FreemiusPricingMain extends Component {
               : 0,
           billingCycles: Object.keys(billingCycles),
           currencies: Object.keys(currencies),
-		  currencySymbols: {
-		              usd: CurrencySymbol.USD,
-		              eur: CurrencySymbol.EUR,
-		              gbp: CurrencySymbol.GBP,
-		              ils: CurrencySymbol.ILS,
-		              cad: CurrencySymbol.CAD,
-		              aud: CurrencySymbol.AUD,
-		              pln: CurrencySymbol.PLN,
-		            },
+          currencySymbols: {
+            usd: CurrencySymbol.USD,
+            eur: CurrencySymbol.EUR,
+            gbp: CurrencySymbol.GBP,
+            ils: CurrencySymbol.ILS,
+            cad: CurrencySymbol.CAD,
+            aud: CurrencySymbol.AUD,
+            pln: CurrencySymbol.PLN,
+          },
           discountsModel: FSConfig?.discounts_model ?? DiscountsModel.ABSOLUTE,
           downloads: pricingData.downloads,
           hasAnnualCycle: hasAnnualCycle,
@@ -691,6 +708,7 @@ class FreemiusPricingMain extends Component {
           priorityEmailSupportPlanID: priorityEmailSupportPlanID,
           reviews: pricingData.reviews,
           selectedBillingCycle: selectedBillingCycle,
+          selectedCurrency: selectedCurrency,
           skipDirectlyToPayPal:
             'true' === pricingData.skip_directly_to_paypal ||
             true === pricingData.skip_directly_to_paypal,
